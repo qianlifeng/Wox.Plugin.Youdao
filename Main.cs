@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Windows.Forms;
 using Newtonsoft.Json;
 using Wox.Plugin.Fanyi;
 
@@ -37,18 +38,22 @@ namespace Wox.Plugin.Youdao
         public List<Result> Query(Query query)
         {
             List<Result> results = new List<Result>();
-            if (query.ActionParameters.Count == 0)
+            if (query.Terms.Length == 1)
             {
                 results.Add(new Result()
                 {
                     Title = "Start to translate between Chinese and English",
                     SubTitle = "Powered by youdao api",
-                    IcoPath = "Images\\youdao.ico"
+                    IcoPath = "Images\\youdao.ico",
+                    Action = c =>
+                    {
+                        return true;
+                    },
                 });
                 return results;
             }
 
-            HttpWebResponse response = HttpRequest.CreatePostHttpResponse(translateURL + query.GetAllRemainingParameter(), null, null, null, Encoding.UTF8, null);
+            HttpWebResponse response = HttpRequest.CreatePostHttpResponse(translateURL + query.Search, null, null, null, Encoding.UTF8, null);
             Stream s = response.GetResponseStream();
             if (s != null)
             {
@@ -64,7 +69,12 @@ namespace Wox.Plugin.Youdao
                                 Title = o.basic.phonetic,
                                 SubTitle = string.Join(",", o.basic.explains.ToArray()),
                                 IcoPath = "Images\\youdao.ico",
-                            });
+                                Action = c =>
+                                {
+                                    Clipboard.SetText(o.basic.phonetic + Environment.NewLine + string.Join(",", o.basic.explains.ToArray()));
+                                    return true;
+                                },
+                        });
                     }
                     foreach (string t in o.translation)
                     {
@@ -72,7 +82,12 @@ namespace Wox.Plugin.Youdao
                             {
                                 Title = t,
                                 IcoPath = "Images\\youdao.ico",
-                            });
+                                Action = c =>
+                                {
+                                    Clipboard.SetText(t);
+                                    return true;
+                                },
+                        });
                     }
                     if (o.web != null)
                     {
@@ -83,7 +98,12 @@ namespace Wox.Plugin.Youdao
                                     Title = t.key,
                                     SubTitle = string.Join(",", t.value.ToArray()),
                                     IcoPath = "Images\\youdao.ico",
-                                });
+                                    Action = c =>
+                                    {
+                                        Clipboard.SetText(t.key + Environment.NewLine + string.Join(",", t.value.ToArray()));
+                                        return true;
+                                    },
+                            });
                         }
                     }
                 }
@@ -113,6 +133,10 @@ namespace Wox.Plugin.Youdao
                     {
                         Title = error,
                         IcoPath = "Images\\youdao.ico",
+                        Action = c =>
+                        {
+                            return false;
+                        },
                     });
                 }
             }
