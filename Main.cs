@@ -41,7 +41,11 @@ namespace Wox.Plugin.Youdao
                 {
                     Title = "开始有道中英互译",
                     SubTitle = "基于有道网页 API",
-                    IcoPath = ico
+                    IcoPath = ico,
+                    Action = e=>
+                    {
+                        return false;
+                    }
                 });
                 return results;
             }
