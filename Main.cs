@@ -56,7 +56,7 @@ namespace Wox.Plugin.Youdao
                     var title = translation;
                     if (o.basic?.phonetic != null)
                     {
-                        title += "[" + o.basic.phonetic + "]";
+                        title += " [" + o.basic.phonetic + "]";
                     }
                     results.Add(new Result
                     {
